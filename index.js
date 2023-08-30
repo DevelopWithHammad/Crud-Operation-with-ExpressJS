@@ -27,16 +27,15 @@ app.get('/api/v1/tours', (req, res) => {
 
 
 app.get('/api/v1/tours/:tourId', (req, res) => {
-    // res.send(req.params.tourId)
     console.log("tourId===>>>>>", req.params.tourId);
     console.log("typeof===>>>>>", typeof req.params.tourId);
     console.log("===>>>>>length", parsedToursData?.data.length);
 
+
     if ((req.params.tourId * 1) > parsedToursData?.data.length) {
-        res.status(404).send("Data not available")
-    } else {
-        res.status(200).send(req.params.tourId)
+        return res.status(404).send("Data not available")
     }
+
 
 
     const singleTour = parsedToursData?.data?.find(tour => tour.id == req.params.tourId)
@@ -82,7 +81,7 @@ app.post("/api/v1/tours", (req, res) => {
 
 
 app.delete("/api/v1/tours/:tourId", (req, res) => {
-    console.log(req.param.tourId);
+    console.log(req.params.tourId);
     const filteredData = parsedToursData.data.filter(tour => tour.id != (req.params.tourId * 1))
 
     parsedToursData.data = filteredData
@@ -98,15 +97,33 @@ app.delete("/api/v1/tours/:tourId", (req, res) => {
 
 
 app.put("/api/v1/tours/:tourId", (req, res) => {
-    console.log("id====>>>>", req.params.tourId);
+
+    console.log(req.params.tourId);
 
     let indexNumber;
 
-   
+    parsedToursData.data.forEach((tour, idx) => {
+        if (tour.id === (req.params.tourId * 1)) {
+            indexNumber = idx;
+        }
+    });
 
+
+    parsedToursData.data.splice(indexNumber, 1, req.body)
+
+    fs.writeFile("./toursData.json", JSON.stringify(parsedToursData), () => {
+        res.status(200).json({
+            status: "Success",
+            data: "succcessfully updated!"
+        })
+    })
 
 
 })
+
+
+
+
 
 
 
